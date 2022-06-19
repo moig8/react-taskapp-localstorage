@@ -1,23 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { TaskCreator } from "./components/TaskCreator";
+import "./App.css";
+import {TaskTable} from './components/TaskTable';
 
 function App() {
+  const [taskItems, setTaskItems] = useState([]);
+
+  function createNewTask(taskName) {
+    if(!taskItems.find(task => task.name===taskName)){
+      setTaskItems([...taskItems, {name: taskName, done: false}] );
+    }else{
+      alert('Tarea repetida!, no es posible agregarla')
+    }
+  }
+/*Este use efecto cuando su arreglo que se encuentra al finalizar la función
+se deja vació como en esta ocasión, lo que hace es que se carga de primero al ejecutar
+la aplicación
+*/ 
+  useEffect(()=>{
+    let data = localStorage.getItem('tasks')//obtenemos el arreglo de datos de localStorage
+    /**Comprobamos que contenga información */
+    if(data) {
+      setTaskItems(JSON.parse(data));//actualizamos el estado del arreglo y parseamos a formato JSON la data 
+    }
+  },[])
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(taskItems));//añadimos los datos a local storage convirtiendolos en formato JSON
+  }, [taskItems])
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <TaskCreator createNewTask={createNewTask}/>
+      <TaskTable tasks={taskItems}/>
+      
     </div>
   );
 }
